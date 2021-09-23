@@ -1,14 +1,15 @@
 package com.kruger.app.model;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@ApiModel(description = "Modelo de request para registro de empleado", value = "EmpleadoReq")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

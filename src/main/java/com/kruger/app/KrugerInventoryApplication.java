@@ -20,8 +20,11 @@ public class KrugerInventoryApplication {
 	@Bean
 	InitializingBean insertAdmin(){
 		return ()->{
-			Usuario user= new Usuario("kruger", "admin");
-			usuarioDAO.save(user);
+			Usuario user= usuarioDAO.findByUsuario("kruger");
+			if(user==null) {
+				Usuario usuario = new Usuario("kruger", "admin");
+				usuarioDAO.save(usuario);
+			}
 		};
 	}
 

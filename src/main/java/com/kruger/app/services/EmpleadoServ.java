@@ -1,13 +1,15 @@
 package com.kruger.app.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kruger.app.dao.IEmpleadoDAO;
 import com.kruger.app.dao.IUsuarioDAO;
+import com.kruger.app.dao.IVacunacionDAO;
 import com.kruger.app.dto.Empleado;
 import com.kruger.app.dto.Usuario;
+import com.kruger.app.dto.Vacunacion;
+import com.kruger.app.enums.EstadoVacuna;
 import com.kruger.app.mapper.EmpleadoMapper;
-import com.kruger.app.model.EditAdminEmpleadoReq;
-import com.kruger.app.model.EmpleadoReq;
-import com.kruger.app.model.Response;
+import com.kruger.app.model.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +32,9 @@ public class EmpleadoServ implements IEmpleadoServ {
     @Autowired
     IUsuarioDAO usuarioDAO;
 
+    @Autowired
+    IVacunacionDAO vacunacionDAO;
+
 
     /**
      * Funcion para guardar los empleados
@@ -41,9 +46,9 @@ public class EmpleadoServ implements IEmpleadoServ {
     public ResponseEntity<Response> guardarEmpleado(EmpleadoReq request) {
 
         Response resp = new Response();
-        Usuario usuario= null;
+        Usuario usuario = null;
         try {
-            Long dniValid= Long.parseLong(request.getDni());
+            Long dniValid = Long.parseLong(request.getDni());
 
             Empleado empleado = empleadoMapper.empleadoReqToEmpleado(request);
             log.info(empleado);
@@ -53,10 +58,10 @@ public class EmpleadoServ implements IEmpleadoServ {
             empleadoDAO.save(empleado);
             resp.setCode(200);
             resp.setMessage("OK");
-            resp.setResponse(new Usuario(usuario.getUsuario(), request.getDni()));
+            resp.setResponse(new Usuario(usuario.getId(), usuario.getUsuario(), request.getDni()));
             return ResponseEntity.status(HttpStatus.CREATED).body(resp);
         } catch (Exception e) {
-            if(usuario != null){
+            if (usuario != null) {
                 usuarioDAO.delete(usuario);
             }
             log.error(e.getMessage());
@@ -119,11 +124,13 @@ public class EmpleadoServ implements IEmpleadoServ {
                     empl.setNombres(request.getNombres());
                 if (request.getTelefono() != null)
                     empl.setTelefono(request.getTelefono());
-                if (request.getDireccion_domicilio() != null)
-                    empl.setDireccion_domicilio(request.getDireccion_domicilio());
+                if (request.getDireccionDomicilio() != null)
+                    empl.setDireccionDomicilio(request.getDireccionDomicilio());
+                if (request.getFechaNacimiento() != null)
+                    empl.setFechaNacimiento(request.getFechaNacimiento());
 
-                empleadoDAO.updateEmpleado(empl.getApellidos(), empl.getNombres(), empl.getDireccion_domicilio(),
-                        empl.getCorreo(), empl.getTelefono(), id);
+                empleadoDAO.updateEmpleado(empl.getApellidos(), empl.getNombres(), empl.getDireccionDomicilio(),
+                        empl.getCorreo(), empl.getTelefono(), empl.getFechaNacimiento(), id);
                 resp.setCode(200);
                 resp.setMessage("OK");
 
@@ -171,6 +178,14 @@ public class EmpleadoServ implements IEmpleadoServ {
         }
     }
 
+    /**
+     * Funcion para generar los datos de autenticacion (Usuario, Password)
+     *
+     * @param apellidos Apellidos de empleado
+     * @param nombres   Nombres de empleado
+     * @param dni       Dni de empleado
+     * @return Modelo datos Usuario.class
+     */
     @Override
     public Usuario generaDatosAuth(String apellidos, String nombres, String dni) {
         String apellido = apellidos.split(" ")[0];
@@ -180,7 +195,7 @@ public class EmpleadoServ implements IEmpleadoServ {
         str.append(nombre.charAt(0)).append(apellido).append(1);
         String user = str.toString();
         log.info(str.toString());
-        Usuario usuario = null;
+        Usuario usuario;
         while (true) {
             usuario = usuarioDAO.findByUsuario(user);
             if (usuario != null) {
@@ -189,14 +204,88 @@ public class EmpleadoServ implements IEmpleadoServ {
                 num++;
                 user = user.substring(0, user.length() - 1);
                 user += num;
-            }else {
+            } else {
                 break;
             }
         }
 
-        usuario = new Usuario(user, dni);
+        usuario = new Usuario(user.toLowerCase(), dni);
         usuario = usuarioDAO.save(usuario);
 
         return usuario;
+    }
+
+    /**
+     * Funcion para obtener la infromacion del empleado
+     *
+     * @param user Usuario del empleado
+     * @return Status del servicio con la respuesta del formato Response.class
+     */
+    @Override
+    public ResponseEntity<Response> getInfoEmpleado(String user) {
+        Response resp = new Response();
+        try {
+            Usuario usuario = usuarioDAO.findByUsuario(user);
+            Empleado empleado = empleadoDAO.findByUsuario(usuario);
+            Vacunacion vacunacion = vacunacionDAO.findByUsuario(usuario);
+
+            InfoEmpleadoRes infoEmpleado = empleadoMapper.toInfoEmpleado(empleado, vacunacion, usuario);
+            if (infoEmpleado.getInfoVacuna().getFechaVacunacion() == null) {
+                infoEmpleado.setInfoVacuna(null);
+            }
+
+            resp.setCode(200);
+            resp.setMessage("OK");
+            resp.setResponse(infoEmpleado);
+            return ResponseEntity.status(HttpStatus.OK).body(resp);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            resp.setCode(400);
+            resp.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
+        }
+
+    }
+
+    /**
+     * Funcion para actualizar la informacion del empleado
+     *
+     * @param user    Usuario del empleado
+     * @param request Modelo datos que va actualizar el empleado
+     * @return Status del servicio con la respuesta del formato Response.class
+     */
+    @Override
+    public ResponseEntity<Response> updateInfoEmpleado(String user, InfoEmpleadoReq request) {
+        Response resp = new Response();
+        try {
+            Usuario usuario = usuarioDAO.findByUsuario(user);
+            Empleado empleado = empleadoDAO.findByUsuario(usuario);
+
+            Vacunacion vac = new Vacunacion();
+            Vacunacion vacFind = vacunacionDAO.findByUsuario(usuario);
+            if (vacFind == null) {
+                vac.setUsuario(usuario);
+                vac.setEstadoVacuna(request.getEstadoVacuna());
+                if (request.getEstadoVacuna().equals(EstadoVacuna.VACUNADO)) {
+                    vac.setTipoVacuna(request.getInfoVacuna().getTipoVacuna());
+                    vac.setFechaVacunacion(request.getInfoVacuna().getFechaVacunacion());
+                    vac.setNumeroDosis(request.getInfoVacuna().getNumeroDosis());
+                }
+                vacunacionDAO.save(vac);
+            } else {
+                vacunacionDAO.updateVacunacion(request.getEstadoVacuna(), request.getInfoVacuna().getFechaVacunacion(),
+                        request.getInfoVacuna().getNumeroDosis(), request.getInfoVacuna().getTipoVacuna(), vacFind.getId());
+            }
+            empleadoDAO.editEmpleado(request.getFechaNacimiento(), request.getDireccionDomicilio(), request.getTelefono(), empleado.getId());
+
+            resp.setCode(200);
+            resp.setMessage("Empleado Actualizado");
+            return ResponseEntity.status(HttpStatus.OK).body(resp);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            resp.setCode(400);
+            resp.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
+        }
     }
 }

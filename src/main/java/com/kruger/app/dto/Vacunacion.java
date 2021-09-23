@@ -26,18 +26,19 @@ public class Vacunacion {
     private Long id;
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date fecha_vacunacion;
+    private Date fechaVacunacion;
 
     @Enumerated(EnumType.STRING)
-    private EstadoVacuna status;
+    private EstadoVacuna estadoVacuna;
 
     @Enumerated(EnumType.STRING)
-    private TipoVacuna tipo_vacuna;
+    private TipoVacuna tipoVacuna;
 
-    private Integer numero_dosis;
+    @Column(unique = true)
+    private Integer numeroDosis;
 
     @OneToOne
-    Empleado empleado;
+    Usuario usuario;
 
 
 }

@@ -36,11 +36,11 @@ public class Empleado {
     private String correo;
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = JsonFormat.DEFAULT_TIMEZONE)
-    private Date fecha_nacimiento;
+    private Date fechaNacimiento;
 
-    private String direccion_domicilio;
+    private String direccionDomicilio;
 
-    private Long telefono;
+    private String telefono;
 
     @OneToOne
     private Usuario usuario;

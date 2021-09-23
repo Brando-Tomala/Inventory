@@ -4,8 +4,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.*;
 
 @ApiModel(description = "Modelo generico de respuesta", value = "Response")
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Response {
