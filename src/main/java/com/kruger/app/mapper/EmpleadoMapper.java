@@ -13,6 +13,7 @@ public interface EmpleadoMapper {
 
     Empleado empleadoReqToEmpleado(EmpleadoReq empleadoReq);
 
+    @Mapping(source = "empleado.id", target = "id")
     @Mapping(source = "usuario.usuario", target = "usuario")
     @Mapping(source = "empleado.dni", target = "dni")
     @Mapping(source = "empleado.nombres", target = "nombres")

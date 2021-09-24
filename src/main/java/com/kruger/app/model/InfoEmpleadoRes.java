@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InfoEmpleadoRes extends InfoEmpleadoReq {
+    private Long id;
     private String dni;
     private String nombres;
     private String apellidos;

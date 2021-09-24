@@ -13,14 +13,11 @@ import com.kruger.app.model.*;
 import com.kruger.app.utilitys.ValidGeneric;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.token.Sha512DigestUtils;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import javax.crypto.NoSuchPaddingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -173,9 +170,14 @@ public class InventoryServ implements IInventoryServ {
             Optional<Empleado> empleado = empleadoDAO.findById(id);
             if (empleado.isPresent()) {
                 Empleado empl = empleado.get();
+                Usuario user= empl.getUsuario();
+                Vacunacion vacc= vacunacionDAO.findByUsuario(user);
                 empleadoDAO.delete(empl);
+                vacunacionDAO.delete(vacc);
+                usuarioDAO.delete(user);
+
                 resp.setCode(200);
-                resp.setMessage("OK");
+                resp.setMessage("Empleado eliminado");
 
             } else {
                 resp.setCode(400);
@@ -199,7 +201,7 @@ public class InventoryServ implements IInventoryServ {
      * @return Modelo datos Usuario.class
      */
     @Override
-    public Usuario generaDatosAuth(String apellidos, String nombres, String dni) {
+    public Usuario generaDatosAuth(String apellidos, String nombres, String dni) throws NoSuchPaddingException, NoSuchAlgorithmException {
         String apellido = apellidos.split(" ")[0];
         String nombre = nombres.split(" ")[0];
 
@@ -220,8 +222,7 @@ public class InventoryServ implements IInventoryServ {
                 break;
             }
         }
-        String pass= Sha512DigestUtils.shaHex(dni);
-        usuario = new Usuario(user.toLowerCase(), pass, Rol.ROL_USER);
+        usuario = new Usuario(user.toLowerCase(), dni, Rol.ROL_USER);
         usuario = usuarioDAO.save(usuario);
 
         return usuario;

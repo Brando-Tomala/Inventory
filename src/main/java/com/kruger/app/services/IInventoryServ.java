@@ -6,6 +6,8 @@ import com.kruger.app.enums.TipoVacuna;
 import com.kruger.app.model.*;
 import org.springframework.http.ResponseEntity;
 
+import javax.crypto.NoSuchPaddingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 public interface IInventoryServ {
@@ -18,7 +20,7 @@ public interface IInventoryServ {
 
     ResponseEntity<Response> eliminarEmpleado(Long id);
 
-    Usuario generaDatosAuth(String apellidos, String nombres, String dni);
+    Usuario generaDatosAuth(String apellidos, String nombres, String dni) throws NoSuchPaddingException, NoSuchAlgorithmException;
 
     ResponseEntity<Response> getInfoEmpleado(String user);
 
