@@ -22,7 +22,7 @@ public class KrugerInventoryApplication {
 		return ()->{
 			Usuario user= usuarioDAO.findByUsuario("kruger");
 			if(user==null) {
-				Usuario usuario = new Usuario("kruger", "admin");
+				Usuario usuario = new Usuario("kruger", "admin", "ADMIN");
 				usuarioDAO.save(usuario);
 			}
 		};

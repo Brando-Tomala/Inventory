@@ -23,9 +23,11 @@ public class Usuario {
 
     private String usuario;
     private String password;
+    private String rol;
 
-    public Usuario(String usuario, String password) {
+    public Usuario(String usuario, String password, String rol) {
         this.usuario = usuario;
         this.password = password;
+        this.rol = rol;
     }
 }

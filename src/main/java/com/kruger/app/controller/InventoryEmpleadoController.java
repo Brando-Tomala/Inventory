@@ -2,7 +2,7 @@ package com.kruger.app.controller;
 
 import com.kruger.app.model.InfoEmpleadoReq;
 import com.kruger.app.model.Response;
-import com.kruger.app.services.IEmpleadoServ;
+import com.kruger.app.services.IInventoryServ;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import javax.validation.Valid;
 public class InventoryEmpleadoController implements IInventoryEmpleadoController{
 
     @Autowired
-    IEmpleadoServ empleadoServ;
+    IInventoryServ empleadoServ;
 
     @Override
     @ApiOperation("API para obtener la informacion del empleado")

@@ -1,13 +1,14 @@
 package com.kruger.app.services;
 
 import com.kruger.app.dto.Usuario;
-import com.kruger.app.model.EditAdminEmpleadoReq;
-import com.kruger.app.model.EmpleadoReq;
-import com.kruger.app.model.InfoEmpleadoReq;
-import com.kruger.app.model.Response;
+import com.kruger.app.enums.EstadoVacuna;
+import com.kruger.app.enums.TipoVacuna;
+import com.kruger.app.model.*;
 import org.springframework.http.ResponseEntity;
 
-public interface IEmpleadoServ {
+import java.util.Date;
+
+public interface IInventoryServ {
 
     ResponseEntity<Response> guardarEmpleado(EmpleadoReq request);
 
@@ -22,5 +23,7 @@ public interface IEmpleadoServ {
     ResponseEntity<Response> getInfoEmpleado(String user);
 
     ResponseEntity<Response> updateInfoEmpleado(String user, InfoEmpleadoReq request);
+
+    ResponseEntity<Response> filterEmpleado(FilterEmpleadoReq request);
 
 }

@@ -2,6 +2,11 @@ package com.kruger.app.dao;
 
 import com.kruger.app.dto.Empleado;
 import com.kruger.app.dto.Usuario;
+import com.kruger.app.dto.Vacunacion;
+import com.kruger.app.enums.EstadoVacuna;
+import com.kruger.app.enums.TipoVacuna;
+import com.kruger.app.model.InfoEmpleadoRes;
+import com.kruger.app.model.Inventory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +14,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Transactional
 @Repository
@@ -26,5 +33,27 @@ public interface IEmpleadoDAO extends JpaRepository<Empleado, Long> {
     void editEmpleado(Date fechaNacimiento, String direccionDomicilio, String telefono, Long id);
 
     Empleado findByUsuario(Usuario user);
+
+    @Query(value = "SELECT e, v \n" +
+            "FROM Empleado e \n" +
+            "JOIN Usuario u on e.usuario = u.id \n" +
+            "JOIN Vacunacion v on v.usuario= u.id " +
+            "WHERE v.fechaVacunacion between ?1 and ?2")
+    List<Object[]> filterEmpleadoByDate(Date fechaDesde, Date fechaHasta);
+
+    @Query(value = "SELECT e, v \n" +
+            "FROM Empleado e \n" +
+            "JOIN Usuario u on e.usuario = u.id \n" +
+            "JOIN Vacunacion v on v.usuario= u.id " +
+            "WHERE v.tipoVacuna = ?1")
+    List<Object[]> filterEmpleadoByTipoVacuna(TipoVacuna tipoVacuna);
+
+    @Query(value = "SELECT e, v \n" +
+            "FROM Empleado e \n" +
+            "JOIN Usuario u on e.usuario = u.id \n" +
+            "JOIN Vacunacion v on v.usuario= u.id " +
+            "WHERE v.estadoVacuna = ?1")
+    List<Object[]> filterEmpleadoByEstadoVacuna(EstadoVacuna estadoVacuna);
+
 
 }

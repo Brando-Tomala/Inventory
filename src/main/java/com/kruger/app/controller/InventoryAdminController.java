@@ -2,8 +2,9 @@ package com.kruger.app.controller;
 
 import com.kruger.app.model.EditAdminEmpleadoReq;
 import com.kruger.app.model.EmpleadoReq;
+import com.kruger.app.model.FilterEmpleadoReq;
 import com.kruger.app.model.Response;
-import com.kruger.app.services.IEmpleadoServ;
+import com.kruger.app.services.IInventoryServ;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import javax.validation.Valid;
 public class InventoryAdminController implements IInventoryAdminController {
 
     @Autowired
-    IEmpleadoServ empleadoServ;
+    IInventoryServ empleadoServ;
 
     @Override
     @ApiOperation("API para registrar los empleados")
@@ -50,5 +51,12 @@ public class InventoryAdminController implements IInventoryAdminController {
     public ResponseEntity<Response> eliminarEmpleado(@PathVariable("id") Long id) {
 
         return empleadoServ.eliminarEmpleado(id);
+    }
+
+    @Override
+    @ApiOperation("API para eliminar empleado")
+    @PostMapping("/filter")
+    public ResponseEntity<?> filterEmpleado(@RequestBody FilterEmpleadoReq request) {
+        return empleadoServ.filterEmpleado(request);
     }
 }

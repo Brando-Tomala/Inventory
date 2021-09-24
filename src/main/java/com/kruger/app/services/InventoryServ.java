@@ -1,5 +1,6 @@
 package com.kruger.app.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kruger.app.dao.IEmpleadoDAO;
 import com.kruger.app.dao.IUsuarioDAO;
@@ -10,6 +11,7 @@ import com.kruger.app.dto.Vacunacion;
 import com.kruger.app.enums.EstadoVacuna;
 import com.kruger.app.mapper.EmpleadoMapper;
 import com.kruger.app.model.*;
+import com.kruger.app.utilitys.ValidGeneric;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,12 +19,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Log4j2
 @Service
-public class EmpleadoServ implements IEmpleadoServ {
+public class InventoryServ implements IInventoryServ {
     @Autowired
     IEmpleadoDAO empleadoDAO;
 
@@ -47,19 +52,29 @@ public class EmpleadoServ implements IEmpleadoServ {
 
         Response resp = new Response();
         Usuario usuario = null;
+
+        ValidGeneric valid = new ValidGeneric();
         try {
-            Long dniValid = Long.parseLong(request.getDni());
+            if (valid.validNumber(request.getDni()) && valid.validStrings(request.getNombres())
+                    && valid.validStrings(request.getApellidos())) {
 
-            Empleado empleado = empleadoMapper.empleadoReqToEmpleado(request);
-            log.info(empleado);
 
-            usuario = this.generaDatosAuth(request.getApellidos(), request.getNombres(), request.getDni());
-            empleado.setUsuario(usuario);
-            empleadoDAO.save(empleado);
-            resp.setCode(200);
-            resp.setMessage("OK");
-            resp.setResponse(new Usuario(usuario.getId(), usuario.getUsuario(), request.getDni()));
-            return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+                Empleado empleado = empleadoMapper.empleadoReqToEmpleado(request);
+                log.info(empleado);
+
+
+                usuario = this.generaDatosAuth(request.getApellidos(), request.getNombres(), request.getDni());
+                empleado.setUsuario(usuario);
+                empleadoDAO.save(empleado);
+                resp.setCode(200);
+                resp.setMessage("OK");
+                resp.setResponse(new Usuario(usuario.getId(), usuario.getUsuario(), request.getDni(), usuario.getRol()));
+                return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+            } else {
+                resp.setCode(400);
+                resp.setMessage("Request Invalido");
+                return ResponseEntity.status(HttpStatus.OK).body(resp);
+            }
         } catch (Exception e) {
             if (usuario != null) {
                 usuarioDAO.delete(usuario);
@@ -81,18 +96,15 @@ public class EmpleadoServ implements IEmpleadoServ {
         Response resp = new Response();
         try {
             List<Empleado> listEmpleado = empleadoDAO.findAll();
-            List<Empleado> emplList = listEmpleado.stream().map(empl -> {
+            List<InfoEmpleadoRes> listEmpleadoInfo = listEmpleado.stream().map(empl -> {
                 Usuario user = empl.getUsuario();
-                if (user != null) {
-                    user.setPassword(null);
-                    empl.setUsuario(user);
-                }
-                return empl;
+                Vacunacion vacc = vacunacionDAO.findByUsuario(user);
+                return empleadoMapper.toInfoEmpleado(empl, vacc, user);
             }).collect(Collectors.toList());
 
             resp.setCode(200);
             resp.setMessage("OK");
-            resp.setResponse(emplList);
+            resp.setResponse(listEmpleadoInfo);
             return ResponseEntity.status(HttpStatus.OK).body(resp);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -209,7 +221,7 @@ public class EmpleadoServ implements IEmpleadoServ {
             }
         }
 
-        usuario = new Usuario(user.toLowerCase(), dni);
+        usuario = new Usuario(user.toLowerCase(), dni, "EMPLEADO");
         usuario = usuarioDAO.save(usuario);
 
         return usuario;
@@ -280,6 +292,54 @@ public class EmpleadoServ implements IEmpleadoServ {
 
             resp.setCode(200);
             resp.setMessage("Empleado Actualizado");
+            return ResponseEntity.status(HttpStatus.OK).body(resp);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            resp.setCode(400);
+            resp.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
+        }
+    }
+
+    /**
+     * Funcion para obtener listado de los empleados por los criterios de filtro
+     *
+     * @param request Modelo datos para filtrar los registros
+     * @return Status del servicio con la respuesta del formato Response.class
+     */
+    @Override
+    public ResponseEntity<Response> filterEmpleado(FilterEmpleadoReq request) {
+        Response resp = new Response();
+        try {
+
+            List<Object[]> data = null;
+            List<InfoEmpleadoRes> infoEmpleado = null;
+
+            if (request.getEstadoVacuna() != null) {
+                data = empleadoDAO.filterEmpleadoByEstadoVacuna(request.getEstadoVacuna());
+            } else if (request.getTipoVacuna() != null) {
+                data = empleadoDAO.filterEmpleadoByTipoVacuna(request.getTipoVacuna());
+            } else if (request.getFechaDesde() != null && request.getFechaHasta() != null) {
+                data = empleadoDAO.filterEmpleadoByDate(request.getFechaDesde(), request.getFechaHasta());
+
+            } else {
+                resp.setCode(400);
+                resp.setMessage("Filtros incorrectos");
+            }
+            if (data != null) {
+                infoEmpleado = data.stream()
+                        .map(obj -> new Inventory((Empleado) obj[0], (Vacunacion) obj[1]))
+                        .map(inv -> {
+                            Usuario user = inv.getEmpleado().getUsuario();
+                            return empleadoMapper.toInfoEmpleado(inv.getEmpleado(), inv.getVacunacion(), user);
+                        })
+                        .collect(Collectors.toList());
+                resp.setCode(0);
+                resp.setMessage(infoEmpleado.isEmpty() ? "No hay registros" : "OK");
+            }
+
+            resp.setResponse(infoEmpleado);
+
             return ResponseEntity.status(HttpStatus.OK).body(resp);
         } catch (Exception e) {
             log.error(e.getMessage());
