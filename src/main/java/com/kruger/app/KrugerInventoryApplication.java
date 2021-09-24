@@ -2,6 +2,7 @@ package com.kruger.app;
 
 import com.kruger.app.dao.IUsuarioDAO;
 import com.kruger.app.dto.Usuario;
+import com.kruger.app.enums.Rol;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +23,7 @@ public class KrugerInventoryApplication {
 		return ()->{
 			Usuario user= usuarioDAO.findByUsuario("kruger");
 			if(user==null) {
-				Usuario usuario = new Usuario("kruger", "admin", "ADMIN");
+				Usuario usuario = new Usuario("kruger", "admin", Rol.ROL_ADMIN);
 				usuarioDAO.save(usuario);
 			}
 		};

@@ -1,5 +1,6 @@
 package com.kruger.app.dto;
 
+import com.kruger.app.enums.Rol;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -23,9 +24,9 @@ public class Usuario {
 
     private String usuario;
     private String password;
-    private String rol;
+    private Rol rol;
 
-    public Usuario(String usuario, String password, String rol) {
+    public Usuario(String usuario, String password, Rol rol) {
         this.usuario = usuario;
         this.password = password;
         this.rol = rol;

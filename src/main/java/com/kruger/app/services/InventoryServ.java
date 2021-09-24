@@ -1,7 +1,5 @@
 package com.kruger.app.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kruger.app.dao.IEmpleadoDAO;
 import com.kruger.app.dao.IUsuarioDAO;
 import com.kruger.app.dao.IVacunacionDAO;
@@ -9,20 +7,22 @@ import com.kruger.app.dto.Empleado;
 import com.kruger.app.dto.Usuario;
 import com.kruger.app.dto.Vacunacion;
 import com.kruger.app.enums.EstadoVacuna;
+import com.kruger.app.enums.Rol;
 import com.kruger.app.mapper.EmpleadoMapper;
 import com.kruger.app.model.*;
 import com.kruger.app.utilitys.ValidGeneric;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.token.Sha512DigestUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -220,8 +220,8 @@ public class InventoryServ implements IInventoryServ {
                 break;
             }
         }
-
-        usuario = new Usuario(user.toLowerCase(), dni, "EMPLEADO");
+        String pass= Sha512DigestUtils.shaHex(dni);
+        usuario = new Usuario(user.toLowerCase(), pass, Rol.ROL_USER);
         usuario = usuarioDAO.save(usuario);
 
         return usuario;
