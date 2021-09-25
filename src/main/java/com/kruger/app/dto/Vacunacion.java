@@ -26,6 +26,7 @@ public class Vacunacion {
     private Long id;
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
     private Date fechaVacunacion;
 
     @Enumerated(EnumType.STRING)

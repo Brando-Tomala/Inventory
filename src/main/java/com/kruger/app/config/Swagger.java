@@ -30,7 +30,7 @@ public class Swagger {
 
     private ApiInfo apiInfo() {
         return new ApiInfo("Kruger: API REST Inventory",
-                "API REST Inventory", "v1.0", "",
+                "API REST Inventario de empleados vacunados", "1.0", "",
                 new Contact("Brando Tomala", "","brando.tomalav@gmail.com"),
                 "Licencia del API", "", Collections.emptyList());
     }

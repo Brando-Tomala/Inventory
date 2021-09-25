@@ -12,7 +12,7 @@ Antes de desplegar el servicio se debe considerar la instalaccion de las siguien
 
 Una vez instaladas las herramientas se procede a:
 1. Crear una carpeta vacia
-2. Descargar del repositorio [GitHub]() en la carpeta
+2. Descargar del repositorio [GitHub](https://github.com/Brando-Tomala/Inventory.git) en la carpeta
 3. Una vez descargado abrir una terminal en la direccion de la carpeta
 4. Ingresar a la carpeta docker:
     * Debe ejecutar el siguiente comando: **docker-compose -f db.yml up -d**, esto levantara el contenedor de la base de datos
