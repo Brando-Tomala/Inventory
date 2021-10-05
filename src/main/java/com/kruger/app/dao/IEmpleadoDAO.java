@@ -23,7 +23,7 @@ public interface IEmpleadoDAO extends JpaRepository<Empleado, Long> {
 
     @Modifying
     @Query(value = "UPDATE Empleado em SET em.apellidos= ?1, em.nombres= ?2, em.direccionDomicilio=?3, " +
-            "em.correo=?4, em.telefono=?5, em.fechaNacimiento=?6 WHERE em.id=?6")
+            "em.correo=?4, em.telefono=?5, em.fechaNacimiento=?6 WHERE em.id=?7")
     void updateEmpleado(String apellidos, String nombres, String direccion_domicilio,
                         String correo, String telefono, Date fechaNacimiento, Long id);
 
