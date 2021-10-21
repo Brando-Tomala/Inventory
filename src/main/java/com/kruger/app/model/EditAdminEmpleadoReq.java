@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @ApiModel(description = "Modelo de request para editar informacion del empleado", value = "EditAdminEmpleadoReq")
@@ -18,7 +19,7 @@ public class EditAdminEmpleadoReq {
     private String correo;
     private String direccionDomicilio;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date fechaNacimiento;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy/MM/dd")
+    private LocalDate fechaNacimiento;
     private String telefono;
 }

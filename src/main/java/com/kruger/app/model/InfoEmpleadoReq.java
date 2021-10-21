@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDate;
 
 @ApiModel(description = "Modelo de request de informacion de empleado", value = "InfoEmpleadoReq")
 @Data
@@ -20,7 +20,7 @@ public class InfoEmpleadoReq {
     @ApiModelProperty(required = true)
     @NotNull(message = "Parametro fechaNacimiento no debe ser null")
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = JsonFormat.DEFAULT_TIMEZONE)
-    private Date fechaNacimiento;
+    private LocalDate fechaNacimiento;
 
     @ApiModelProperty(required = true)
     @NotNull(message = "Parametro direccionDomicilio no debe ser null")

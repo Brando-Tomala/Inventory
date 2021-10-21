@@ -21,7 +21,7 @@ public class InfoVacuna {
     private TipoVacuna tipoVacuna;
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = JsonFormat.DEFAULT_TIMEZONE)
-    private Date fechaVacunacion;
+    private LocalDate fechaVacunacion;
 
     private Integer numeroDosis;
 }

@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @ApiModel(description = "Modelo de request para filtrar los empleados", value = "FilterEmpleadoReq")
 @Data
@@ -22,8 +21,8 @@ public class FilterEmpleadoReq {
     private TipoVacuna tipoVacuna;
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = JsonFormat.DEFAULT_TIMEZONE)
-    private Date fechaDesde;
+    private LocalDate fechaDesde;
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = JsonFormat.DEFAULT_TIMEZONE)
-    private Date fechaHasta;
+    private LocalDate fechaHasta;
 }

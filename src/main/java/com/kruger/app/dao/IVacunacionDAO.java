@@ -1,6 +1,5 @@
 package com.kruger.app.dao;
 
-import com.kruger.app.dto.Empleado;
 import com.kruger.app.dto.Usuario;
 import com.kruger.app.dto.Vacunacion;
 import com.kruger.app.enums.EstadoVacuna;
@@ -11,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Transactional
 @Repository
@@ -21,6 +20,6 @@ public interface IVacunacionDAO extends JpaRepository<Vacunacion, Long> {
 
     @Modifying
     @Query(value = "UPDATE Vacunacion v SET v.estadoVacuna=?1, v.fechaVacunacion=?2, v.numeroDosis=?3, v.tipoVacuna=?4 WHERE v.id=?5")
-    void updateVacunacion(EstadoVacuna estadoVacuna, Date fechaVacunacion, Integer numeroDosis, TipoVacuna tipoVacuna, Long id);
+    void updateVacunacion(EstadoVacuna estadoVacuna, LocalDate fechaVacunacion, Integer numeroDosis, TipoVacuna tipoVacuna, Long id);
 
 }

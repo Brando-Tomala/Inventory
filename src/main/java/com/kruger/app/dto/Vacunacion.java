@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @ApiModel(description = "Modelo Vacunacion")
 @Getter
@@ -25,9 +25,7 @@ public class Vacunacion {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Temporal(TemporalType.DATE)
-    private Date fechaVacunacion;
+    private LocalDate fechaVacunacion;
 
     @Enumerated(EnumType.STRING)
     private EstadoVacuna estadoVacuna;

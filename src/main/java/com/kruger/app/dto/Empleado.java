@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @ApiModel(description = "Modelo Empleado")
@@ -32,8 +33,7 @@ public class Empleado {
     @Column(nullable = false, unique = true)
     private String correo;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = JsonFormat.DEFAULT_TIMEZONE)
-    private Date fechaNacimiento;
+    private LocalDate fechaNacimiento;
 
     private String direccionDomicilio;
 

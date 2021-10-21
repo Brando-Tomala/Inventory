@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.NoSuchPaddingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -65,7 +66,7 @@ public class InventoryServ implements IInventoryServ {
                 empleadoDAO.save(empleado);
                 resp.setCode(200);
                 resp.setMessage("OK");
-                resp.setResponse(new Usuario(usuario.getId(), usuario.getUsuario(), request.getDni(), usuario.getRol()));
+                resp.setResponse(new Usuario(empleado.getId(), usuario.getUsuario(), request.getDni(), usuario.getRol()));
                 return ResponseEntity.status(HttpStatus.CREATED).body(resp);
             } else {
                 resp.setCode(400);
@@ -122,6 +123,7 @@ public class InventoryServ implements IInventoryServ {
     public ResponseEntity<Response> editarEmpleado(Long id, EditAdminEmpleadoReq request) {
         Response resp = new Response();
         try {
+            log.info("fecha: {}", request.getFechaNacimiento());
             Optional<Empleado> empleado = empleadoDAO.findById(id);
             if (empleado.isPresent()) {
                 Empleado empl = empleado.get();
@@ -170,8 +172,8 @@ public class InventoryServ implements IInventoryServ {
             Optional<Empleado> empleado = empleadoDAO.findById(id);
             if (empleado.isPresent()) {
                 Empleado empl = empleado.get();
-                Usuario user= empl.getUsuario();
-                Vacunacion vacc= vacunacionDAO.findByUsuario(user);
+                Usuario user = empl.getUsuario();
+                Vacunacion vacc = vacunacionDAO.findByUsuario(user);
                 empleadoDAO.delete(empl);
                 vacunacionDAO.delete(vacc);
                 usuarioDAO.delete(user);
